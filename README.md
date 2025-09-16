@@ -1,7 +1,5 @@
 # Ultimate Linux Guide
 
-This repository is created to serve as a revision notes for the YouTube course created by **Abhishek Veeramalla**(`iam-veeramalla` on GitHub) on his youtube channel - `Abhishek.Veeramalla`.
-
 Following topics are covered as part of the course and documentation.
 
 - Fundamentals of Linux
@@ -19,3 +17,4 @@ Following topics are covered as part of the course and documentation.
 - Disk and Storage management in Linux
 
 Please refer to the folders at the root level of this repository to go through the documentation. 
+

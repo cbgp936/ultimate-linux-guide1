@@ -1,0 +1,190 @@
+1️⃣ Apache Web Server Installation Script
+#!/bin/bash
+sudo su -
+yum update -y
+yum install httpd -y
+systemctl start httpd
+systemctl enable httpd
+chkconfig httpd on
+systemctl start httpd
+systemctl enable httpd
+
+Breakdown:
+
+#!/bin/bash → Tells Linux to use Bash shell for this script.
+
+sudo su - → Switch to the root user.
+
+yum update -y → Updates all installed packages to the latest version (-y auto-confirms).
+
+yum install httpd -y → Installs Apache HTTP Web Server.
+
+systemctl start httpd → Starts the Apache service.
+
+systemctl enable httpd → Enables Apache to auto-start on boot.
+
+chkconfig httpd on → Legacy command (older init systems). Ensures Apache runs at boot.
+
+Repeated systemctl start/enable httpd → Not necessary, but ensures service is running & persistent.
+
+✅ Purpose: Install and run Apache web server on Amazon Linux.
+
+2️⃣ Nginx Installation Script
+#!/bin/bash
+sudo yum update -y
+sudo amazon-linux-extras install -y nginx1 
+cat /etc/system-release
+sudo yum install -y nginx1
+sudo systemctl start nginx1
+
+Breakdown:
+
+sudo yum update -y → Updates packages.
+
+sudo amazon-linux-extras install -y nginx1 → Enables and installs Nginx package from Amazon Linux extras repo.
+
+cat /etc/system-release → Shows OS version (useful for compatibility checks).
+
+sudo yum install -y nginx1 → Ensures nginx1 package is installed.
+
+sudo systemctl start nginx1 → Starts Nginx service.
+
+✅ Purpose: Install and start Nginx web server.
+
+3️⃣ CPU Utilization Monitoring
+cpu utilization monitoring : sar -1 2
+
+
+sar = System Activity Reporter.
+
+Command: sar -1 2
+
+-1 → Report CPU usage per 1 second.
+
+2 → Run the check for 2 intervals.
+
+Example output:
+
+%user %system %idle
+ 5.00   2.00   93.00
+
+
+✅ Purpose: Monitor CPU utilization in real-time.
+
+4️⃣ Stress Testing CPU
+sudo yum install stress
+for i in 1 2 3 4; do while : ; do : ; done & done
+
+Breakdown:
+
+sudo yum install stress → Installs stress testing tool.
+
+for i in 1 2 3 4; do while : ; do : ; done & done
+
+Creates 4 infinite loops (background processes).
+
+Each consumes CPU resources, generating artificial load.
+
+✅ Purpose: Simulate high CPU utilization for testing/monitoring.
+
+5️⃣ Filesystem Recovery (Lost Private Key Case)
+lsblk
+sudo mkdir /mnt/tempvol
+sudo mount -o nouuid /dev/xvdf1 /mnt/tempvol
+cp .ssh/authorizes_keys /mnt/tempvol/home/ec2-user/.ssh/authorizes_keys
+sudo ls -l /mnt/tempvol/home/ec2-user/.ssh
+sudo umount /mnt/tempvol
+
+Breakdown:
+
+lsblk → Lists block devices (disks/volumes).
+
+sudo mkdir /mnt/tempvol → Creates mount directory.
+
+sudo mount -o nouuid /dev/xvdf1 /mnt/tempvol
+
+Mounts volume /dev/xvdf1 to /mnt/tempvol.
+
+-o nouuid avoids UUID conflicts.
+
+cp .ssh/authorized_keys /mnt/tempvol/home/ec2-user/.ssh/authorized_keys
+
+Copies your public key into the EC2 user’s .ssh folder.
+
+Lets you regain access if the original private key is lost.
+
+sudo ls -l → Verify permissions.
+
+sudo umount /mnt/tempvol → Safely unmount volume.
+
+✅ Purpose: Recover EC2 access by injecting a new SSH key.
+
+6️⃣ Format and Mount a New Attached Volume
+lsblk
+sudo file -s /dev/xvdf
+sudo lsblk -f
+sudo mkfs -t xfs /dev/xvdf
+sudo yum install xfsprogs
+sudo mkdir /data
+sudo mount /dev/xvdf /data
+
+Breakdown:
+
+lsblk → Shows attached disks.
+
+sudo file -s /dev/xvdf → Checks if the volume has a filesystem.
+
+sudo lsblk -f → Lists filesystem types and UUIDs.
+
+sudo mkfs -t xfs /dev/xvdf → Creates XFS filesystem (default in Amazon Linux 2).
+(Use mke2fs -j for ext3/ext4 large FS.)
+
+sudo yum install xfsprogs → Install tools for managing XFS filesystems.
+
+sudo mkdir /data → Creates mount directory.
+
+sudo mount /dev/xvdf /data → Mounts new volume to /data.
+
+✅ Purpose: Prepare and mount a new empty EBS volume.
+
+7️⃣ Make Mount Persistent (Auto-Mount After Reboot)
+vi /etc/fstab
+mount -a
+sudo cp /etc/fstab /etc/fstab.orig
+sudo blkid
+sudo lsblk -o +UUID
+sudo vim /etc/fstab
+
+Breakdown:
+
+/etc/fstab → Defines filesystems to mount at boot.
+
+mount -a → Re-mounts all entries in /etc/fstab.
+
+sudo cp /etc/fstab /etc/fstab.orig → Backup before changes.
+
+sudo blkid → Shows UUID of devices.
+
+sudo lsblk -o +UUID → Displays block devices with UUID.
+
+Edit /etc/fstab to add:
+
+UUID=<volume-uuid>   /data   xfs   defaults,nofail   0   2
+
+
+After reboot, volume will auto-mount.
+
+✅ Purpose: Ensure attached EBS volume mounts automatically at startup.
+
+🎯 Summary
+
+Apache/Nginx setup → Install web servers.
+
+CPU monitoring & stress → Use sar + stress.
+
+Filesystem recovery → Regain EC2 access if SSH key lost.
+
+Attach/format/mount volume → Manage storage.
+
+fstab → Auto-mount after reboot.
+
